@@ -292,3 +292,180 @@ begin
 		raise notice '%', uyari;
 	end if;	
 end $$;
+
+--Task 1 : Film tablosundaki film sayısı 10 dan az ise "Film sayısı az" yazdırın,
+--         10 dan çok ise "Film sayısı yeterli" yazdıralım
+
+do $$ --anonim method, database'e kaydedilmeyecek anlami ihtiva etmekte "do"
+declare
+	_number integer := 0;
+begin
+	select count(*) from film
+	into _number;
+	if(_number < 10) then
+		raise notice 'Film sayisi az';
+	else
+		raise notice 'Film sayisi yeterli';
+	end if;
+end $$;
+-- Task 2: user_age isminde integer data türünde bir değişken tanımlayıp default olarak bir değer verelim, 
+--If yapısı ile girilen değer 18 den büyük ise Access Granted,
+--küçük ise Access Denied yazdıralım
+do $$
+declare
+	user_age integer = random()*10 +1;
+begin
+
+	if (user_age > 18) then
+	raise notice 'Age 18 den buyuk';
+	else
+	raise notice 'Age 18den kucuk ';
+	end if;
+end $$;
+
+-- Task 3: a ve b isimli integer türünde 2 değişken tanımlayıp default değerlerini verelim, 
+--eğer a nın değeri b den büyükse "a , b den büyüktür" yazalım, tam tersi durum için "b, a dan büyüktür" yazalım, 
+--iki değer birbirine eşit ise " a,  b'ye eşittir" yazalım:
+do $$
+declare
+	a integer = random()*5+3;
+	b integer = random()*5+3;
+begin
+	if(a > b) then
+	raise notice 'a b den buyuktur a=% b=%',a,b;
+	elseif(b > a) then
+	raise notice 'b a dan buyuktur a=% b=%',a,b;
+	else
+	raise notice 'a b ye esittir a=% b=%',a,b;
+	end if;
+end $$;
+
+do $$
+declare
+    a integer = random()*5 + 1;
+    b integer = random()*0;
+begin
+    if((a/b)>1) then
+    raise notice 'a b den buyuktur a=% b=%',a,b;
+    elseif((b/a)<1) then
+    raise notice 'b a dan kucuktur a=% b=%',a,b;
+	elseif((b/a)>1) then
+	raise notice 'b a dan buyuktur b=% a=%',b,a;
+    elseif((a/b)=0) or ((b/a)=0)then
+    raise notice 'payda sifir olamaz a=% b=%',a,b;
+    else
+    raise notice 'tanimsiz a=% b=%',a,b;
+    end if;
+end $$;
+
+do $$
+declare
+    a numeric(3,1) = random()*5-1;
+    b numeric(3,1) = (random()*5-1);
+begin
+    if(((a / b)>0)or((b/a)>0)) then
+    raise notice 'a/b sifirdan buyuktur a=% b=%',a,b;
+    elseif((a/b)=0) or ((b/a)=0)then
+    raise notice 'a veya b sifira esittir a=% b=%',a,b;
+    raise exception 'tanimsiz a=% b=%',a,b
+    using hint = 'sifir harici sayilar kullanin';
+    elseif(((a / b)<0)or((b/a)<0)) then
+    raise notice 'b/a sifirdan kucuktur a=% b=%',a,b;
+    raise exception 'negeatif a=% b=%',a,b
+    using hint = 'negatif gelmesin';
+    else
+    raise notice 'tanimsiz';
+    end if;
+end $$;
+---- Task 4 : kullaniciYasi isimli bir değişken oluşturup default değerini verin, 
+--girilen yaş 18 den büyükse "Oy kullanabilirsiniz", 18 den küçük ise "Oy kullanamazsınız" yazısını yazalım.
+do $$
+declare
+	user_age integer = random()*20+8;
+begin
+    if(user_age > 18) then
+	raise notice 'yasiniz=% oy kullanabilirsiniz',user_age;
+	else
+	raise notice 'yasiniz=% oy kullanamazsiniz',user_age;
+	end if;
+end $$;
+
+--  ************** LOOP *************************************
+
+-- syntax 
+
+LOOP
+	statement;
+END LOOP;
+
+-- loop u sonlandırmak için loopun içine if yapısını kullanabilirz :
+
+LOOP
+	statements;
+	IF condition THEN
+		exit; -- loop dan çıkmamı sağlıyor
+	END IF;
+END LOOP;
+
+-- nested loop 
+
+<<outher>>
+LOOP
+	statements;
+	<<inner>>
+	LOOP
+		.....
+		exit <<inner>>
+		END LOOP;
+END LOOP;
+-- Task : Fibonacci serisinde, belli bir sıradaki sayıyı ekrana getirelim
+
+do $$
+declare
+	n integer = random()*40+1;
+	counter integer = 0;
+	i integer = 0;
+	j integer = 1;
+	fibo integer = 0;
+begin
+	if(n<1) then
+	fibo = 0;
+	end if;
+	LOOP
+		exit when counter = n;
+		counter = counter + 1;
+		select j, (i+j) into i,j;
+	END LOOP;
+	fibo = i;
+	raise notice 'fibo=% n=%',fibo,n;
+end $$;
+-- ************ WHILE LOOP *************************
+syntax :
+WHILE condition LOOP
+	statements;
+END LOOP;
+
+-- Task : 1 dan 4 e kadar counter değerlerini ekrana basalım
+do $$
+declare
+	n integer = 4;
+	counter integer = 0;
+begin
+	while counter < n loop
+		counter = counter + 1;
+		raise notice 'counter = %',counter;
+	end loop;	
+end $$;
+--2nd way:
+do $$
+declare
+	counter integer = 0;
+begin
+	while counter < 5 loop
+	counter = counter + 1;
+	raise notice 'counter = %',counter;
+	end loop;
+end $$;
+
+
+
